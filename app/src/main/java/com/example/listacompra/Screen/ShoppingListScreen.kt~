@@ -73,7 +73,6 @@ fun ShoppingListScreen() {
                     }
                 }
 
-                val validProducts = products.filter { it.quantity > 0 && it.price > 0.0 }
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -81,11 +80,11 @@ fun ShoppingListScreen() {
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Total Productos: ${validProducts.size}",
+                            text = "Total Productos: ${products.size}",
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         Text(
-                            text = "Precio total: ${validProducts.sumOf { it.price * it.quantity }}",
+                            text = "Precio total: ${products.sumOf { it.price * it.quantity }}",
                         )
                     }
                 }
@@ -105,16 +104,18 @@ fun ShoppingListScreen() {
                             TextField(
                                 value = quantity,
                                 onValueChange = { quantity = it },
-                                label = { Text("Cantidad") }
+                                label = { Text("Cantidad") },
+                                isError = isError
                             )
                             TextField(
                                 value = price,
                                 onValueChange = { price = it },
-                                label = { Text("Precio") }
+                                label = { Text("Precio") },
+                                isError = isError
                             )
                             if (isError) {
                                 Text(
-                                    text = "Por favor, introduce un nombre válido",
+                                    text = "Por favor, introduce un número válido en cantidad y precio",
                                     color = MaterialTheme.colorScheme.error
                                 )
                             }
@@ -122,9 +123,9 @@ fun ShoppingListScreen() {
                     },
                     confirmButton = {
                         Button(onClick = {
-                            if (name.isNotBlank()) {
-                                val quantityInt = quantity.toIntOrNull() ?: 0
-                                val priceDouble = price.toDoubleOrNull() ?: 0.0
+                            val quantityInt = quantity.toIntOrNull()
+                            val priceDouble = price.toDoubleOrNull()
+                            if (quantityInt != null && priceDouble != null) {
                                 dbHelper.addProduct(Product(0, name, quantityInt, priceDouble))
                                 products = dbHelper.getAllProducts()
                                 showDialog = false
